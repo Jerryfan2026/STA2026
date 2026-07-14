@@ -381,6 +381,66 @@ generator.save_to_word(
 
 ---
 
+## 🛠️ 公众号编辑与排版 Skills
+
+工作区内置了一套**公众号编辑与排版 Skill**，位于 `skills/` 目录，帮助你将 Markdown 内容一键转换为微信公众号兼容格式。
+
+### 推荐工具（按 ⭐ 排序）
+
+| ⭐ Stars | 工具名称 | 核心能力 |
+|---------|---------|---------|
+| 13,016 | [doocs/md](https://github.com/doocs/md) | Markdown 编辑器；AI 助手；多图床；自定义主题 |
+| 4,540 | [lyricat/wechat-format](https://github.com/lyricat/wechat-format) | Markdown → 微信 HTML；代码高亮；LaTeX 公式 |
+| 1,814 | [tianyaxiang/neurapress](https://github.com/tianyaxiang/neurapress) | DeepSeek AI 写作；响应式；实时预览 |
+| 206 | [xueyc1f/turbopush-website](https://github.com/xueyc1f/turbopush-website) | 多平台一键发布；定时发布 |
+| 150 | [mengjian-github/lark-to-markdown](https://github.com/mengjian-github/lark-to-markdown) | 飞书文档 → 公众号；图片/表格完美转换 |
+| 136 | [MuGuiLin/wxEditor](https://github.com/MuGuiLin/wxEditor) | 富文本编辑器，可私有化部署 |
+| 75 | [sleepy-zone/woocs](https://github.com/sleepy-zone/woocs) | 基于 doocs/md 的 Electron 桌面客户端 |
+| 7 | [italks/md-wechat](https://github.com/italks/md-wechat) | CLI 批量排版 + OpenClaw Skill 接入 |
+
+> 完整说明见 [`skills/SKILLS_REGISTRY.md`](./skills/SKILLS_REGISTRY.md)
+
+### 本地 Python Skill 快速使用
+
+```python
+from skills.wechat_typesetting_skill import WeChatTypesettingSkill
+
+skill = WeChatTypesettingSkill(theme_color="#1E6FBB")
+
+# 查看工具清单
+print(skill.list_tools())
+
+# 转换 Markdown
+html = skill.convert("""
+# 文章标题
+
+这是一段**加粗**文字和 `行内代码`。
+
+> 引用块示例
+
+## 二级标题
+
+- 列表项 1
+- 列表项 2
+""")
+print(html)
+```
+
+命令行使用：
+
+```bash
+# 查看所有推荐工具（按 ⭐ 排序）
+python skills/wechat_typesetting_skill.py --list-tools
+
+# 转换 Markdown 文件
+python skills/wechat_typesetting_skill.py article.md -o article.html
+
+# 指定主题色
+python skills/wechat_typesetting_skill.py article.md --color "#07C160" -o article.html
+```
+
+---
+
 ## 📄 许可证
 
 MIT License - 自由使用和修改
@@ -388,6 +448,11 @@ MIT License - 自由使用和修改
 ---
 
 ## ✨ 更新日志
+
+### v1.1 (2026-07-14)
+- ✅ 新增公众号编辑与排版 Skills（`skills/` 目录）
+- ✅ 内置 Python Skill：Markdown → 微信公众号兼容 HTML
+- ✅ 工具清单（按 ⭐ 降序）：[`skills/SKILLS_REGISTRY.md`](./skills/SKILLS_REGISTRY.md)
 
 ### v1.0 (2026-06-21)
 - ✅ 基础报告生成功能
@@ -404,6 +469,6 @@ MIT License - 自由使用和修改
 
 ---
 
-**最后更新：** 2026年6月21日  
+**最后更新：** 2026年7月14日  
 **维护者：** Jerryfan2026  
 **GitHub仓库：** https://github.com/Jerryfan2026/STA2026
