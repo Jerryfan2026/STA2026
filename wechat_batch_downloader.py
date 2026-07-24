@@ -161,7 +161,7 @@ def save_article(
         "url": url,
         "title": title,
         "host": urlparse(url).netloc,
-        # Unix epoch seconds
+        # Unix 时间戳（秒）
         "saved_at": int(time.time()),
     }
     if file_path.exists() and not overwrite:
@@ -190,7 +190,7 @@ def main() -> int:
     urls = load_urls(input_file)
     if not urls:
         print("未找到可用URL，请检查输入文件。")
-        return 1
+        return 2
 
     success_count = 0
     fail_count = 0
