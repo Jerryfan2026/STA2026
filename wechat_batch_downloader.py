@@ -22,8 +22,8 @@ from urllib.request import Request, urlopen
 
 
 DEFAULT_USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome Safari/537.36"
 )
 
 
@@ -72,7 +72,8 @@ def load_urls(file_path: Path) -> List[str]:
 
 
 def sanitize_filename(name: str, max_len: int = 80) -> str:
-    safe = re.sub(r"[\\/:*?\"<>|]+", "_", name).strip()
+    safe = re.sub(r"[\\/:*?\"<>|\n\r\t]+", "_", name).strip()
+    safe = "".join(ch for ch in safe if ch.isprintable())
     safe = re.sub(r"\s+", " ", safe)
     if not safe:
         safe = "untitled"
@@ -136,11 +137,6 @@ def save_article(
     title = sanitize_filename(extract_title(html))
     file_name = f"{index:04d}_{title}.html"
     file_path = output_dir / file_name
-
-    if file_path.exists() and not overwrite:
-        return file_path
-
-    file_path.write_text(html, encoding="utf-8")
     meta_path = output_dir / f"{index:04d}_{title}.json"
     meta = {
         "url": url,
@@ -148,6 +144,11 @@ def save_article(
         "host": urlparse(url).netloc,
         "saved_at": int(time.time()),
     }
+    if file_path.exists() and not overwrite:
+        meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+        return file_path
+
+    file_path.write_text(html, encoding="utf-8")
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     return file_path
 
