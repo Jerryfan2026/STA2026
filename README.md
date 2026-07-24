@@ -12,6 +12,7 @@
 | `research_report_with_charts.py` | 增强版本 - 含数据可视化图表 |
 | `university_thesis_generator.py` | 学位论文版本 - 符合中国大学格式 |
 | `gemini_thesis_to_word.py` | **推荐使用** - 支持Word导出 |
+| `wechat_batch_downloader.py` | 微信公众号文章批量下载（基于URL列表） |
 | `README.md` | 本文档 |
 
 ---
@@ -105,6 +106,43 @@ thesis = generator.generate_complete_thesis(
 # 保存
 generator.save_to_word("输出文件名.docx")
 ```
+
+---
+
+### 方式三：微信公众号文章批量下载
+
+> ⚠️ 请仅下载你有合法访问权限的内容，并遵守平台规则与当地法律法规。
+
+#### 准备URL列表（txt或csv）
+
+- `txt`：每行一个文章链接（支持 `#` 注释行）
+- `csv`：默认读取第一列 URL
+
+示例 `urls.txt`：
+
+```text
+https://mp.weixin.qq.com/s/xxxxxx1
+https://mp.weixin.qq.com/s/xxxxxx2
+```
+
+#### 运行下载脚本
+
+```bash
+python wechat_batch_downloader.py -i urls.txt -o wechat_articles
+```
+
+常用参数：
+
+- `--cookie`：需要登录态时传入 Cookie
+- `--delay`：请求间隔秒数（默认 `1.5`）
+- `--retries`：失败重试次数（默认 `3`）
+- `--overwrite`：覆盖已存在文件
+
+下载后会输出：
+
+- 文章 HTML 文件
+- 同名 JSON 元数据
+- `download_manifest.json` 汇总清单
 
 ---
 
