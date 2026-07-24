@@ -28,6 +28,8 @@ DEFAULT_USER_AGENT = (
 )
 RETRY_BACKOFF_MULTIPLIER = 2
 MAX_RETRY_DELAY_SECONDS = 5
+# Windows/Unix 文件名非法字符 + 常见控制字符
+FILENAME_INVALID_CHARS_PATTERN = r"[\\/:*?\"<>|\n\r\t]+"
 
 
 def non_negative_float(value: str) -> float:
@@ -89,7 +91,7 @@ def load_urls(file_path: Path) -> List[str]:
 
 
 def sanitize_filename(name: str, max_len: int = 150) -> str:
-    safe = re.sub(r"[\\/:*?\"<>|\n\r\t]+", "_", name).strip()
+    safe = re.sub(FILENAME_INVALID_CHARS_PATTERN, "_", name).strip()
     safe = "".join(ch for ch in safe if ch.isprintable())
     safe = re.sub(r"\s+", " ", safe)
     if not safe:
@@ -159,6 +161,7 @@ def save_article(
         "url": url,
         "title": title,
         "host": urlparse(url).netloc,
+        # Unix epoch seconds
         "saved_at": int(time.time()),
     }
     if file_path.exists() and not overwrite:
