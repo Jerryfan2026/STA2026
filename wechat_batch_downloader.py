@@ -23,7 +23,7 @@ from urllib.request import Request, urlopen
 
 DEFAULT_USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome Safari/537.36"
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 )
 
 
@@ -145,7 +145,6 @@ def save_article(
         "saved_at": int(time.time()),
     }
     if file_path.exists() and not overwrite:
-        meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
         return file_path
 
     file_path.write_text(html, encoding="utf-8")
@@ -217,7 +216,11 @@ def main() -> int:
     print(f"- 成功: {success_count}")
     print(f"- 失败: {fail_count}")
     print(f"- 清单: {manifest_path}")
-    return 0 if success_count > 0 else 2
+    if fail_count == 0:
+        return 0
+    if success_count > 0:
+        return 1
+    return 2
 
 
 if __name__ == "__main__":
