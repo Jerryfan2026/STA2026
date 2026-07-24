@@ -81,7 +81,7 @@ def load_urls(file_path: Path) -> List[str]:
                 if value and value.startswith("http"):
                     urls.append(value)
     else:
-        with file_path.open("r", encoding="utf-8") as f:
+        with file_path.open("r", encoding="utf-8-sig") as f:
             for line in f:
                 value = line.strip()
                 if value and not value.startswith("#") and value.startswith("http"):
@@ -165,6 +165,8 @@ def save_article(
         "saved_at": int(time.time()),
     }
     if file_path.exists() and not overwrite:
+        if not meta_path.exists():
+            meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
         return file_path
 
     file_path.write_text(html, encoding="utf-8")
@@ -173,6 +175,13 @@ def save_article(
 
 
 def main() -> int:
+    """命令行入口。
+
+    返回码：
+    - 0: 全部成功
+    - 1: 部分成功，部分失败
+    - 2: 全部失败
+    """
     args = parse_args()
     input_file = Path(args.input)
     output_dir = Path(args.output_dir)
