@@ -22,18 +22,35 @@ from urllib.request import Request, urlopen
 
 
 DEFAULT_USER_AGENT = (
+    # 可按需定期更新版本号，避免被识别为过旧客户端
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
 )
+RETRY_BACKOFF_MULTIPLIER = 2
+MAX_RETRY_DELAY_SECONDS = 5
+
+
+def non_negative_float(value: str) -> float:
+    number = float(value)
+    if number < 0:
+        raise argparse.ArgumentTypeError("该参数必须为非负数")
+    return number
+
+
+def positive_int(value: str) -> int:
+    number = int(value)
+    if number <= 0:
+        raise argparse.ArgumentTypeError("该参数必须大于0")
+    return number
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="微信公众号文章批量下载")
     parser.add_argument("-i", "--input", required=True, help="URL列表文件路径（txt/csv）")
     parser.add_argument("-o", "--output-dir", default="wechat_articles", help="输出目录")
-    parser.add_argument("--delay", type=float, default=1.5, help="每次请求间隔（秒）")
-    parser.add_argument("--timeout", type=int, default=25, help="请求超时（秒）")
-    parser.add_argument("--retries", type=int, default=3, help="失败重试次数")
+    parser.add_argument("--delay", type=non_negative_float, default=1.5, help="每次请求间隔（秒）")
+    parser.add_argument("--timeout", type=positive_int, default=25, help="请求超时（秒）")
+    parser.add_argument("--retries", type=positive_int, default=3, help="失败重试次数")
     parser.add_argument("--cookie", default="", help="可选：请求 Cookie")
     parser.add_argument(
         "--referer",
@@ -71,7 +88,7 @@ def load_urls(file_path: Path) -> List[str]:
     return urls
 
 
-def sanitize_filename(name: str, max_len: int = 80) -> str:
+def sanitize_filename(name: str, max_len: int = 150) -> str:
     safe = re.sub(r"[\\/:*?\"<>|\n\r\t]+", "_", name).strip()
     safe = "".join(ch for ch in safe if ch.isprintable())
     safe = re.sub(r"\s+", " ", safe)
@@ -122,7 +139,7 @@ def fetch_html(
             last_error = str(e)
 
         if attempt < retries:
-            time.sleep(min(2 * attempt, 5))
+            time.sleep(min(RETRY_BACKOFF_MULTIPLIER * attempt, MAX_RETRY_DELAY_SECONDS))
 
     return False, last_error
 
@@ -194,7 +211,7 @@ def main() -> int:
             print(f"[{i}/{len(urls)}] ❌ {url} -> {content_or_error}")
 
         if i < len(urls):
-            time.sleep(max(args.delay, 0))
+            time.sleep(args.delay)
 
     manifest_path = output_dir / "download_manifest.json"
     manifest_path.write_text(
